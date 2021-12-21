@@ -33,4 +33,6 @@ function getModule(filter, first = true) {
   return modules
 }
 
+console.log("%c[getModule]", "font-weight: bold; color: purple;", "Returned 'getModule'!")
+
 return getModule
