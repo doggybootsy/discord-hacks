@@ -102,6 +102,32 @@ Object.assign(patch, {
 ```
 </details>
 
+### Send Local Embeds
+<details>
+  <summary>Details and Code</summary>
+  
+Send a fake message with a embed and a message in the current channel (Do not the alert means nothing)
+
+Requirements: `Get Module Filter Function`
+  
+```js
+let { getChannelId } = getModule(["getChannelId", "getVoiceChannelId"])
+let { receiveMessage } = getModule(["receiveMessage"])
+let { createBotMessage } = getModule(["createBotMessage"])
+let { getCurrentUser } = getModule(["getCurrentUser"])
+
+function sendFakeEmbed(message, embed) {
+  let msg = createBotMessage(getChannelId(), message, [embed])
+  msg.author = getCurrentUser()
+  msg.mention_everyone = false
+  msg.type = 0
+  msg.flags = 16
+  receiveMessage(msg.channel_id, msg)
+}
+```
+Example: `sendFakeEmbed("Message Content")` and `sendFakeEmbed("Message Content", { title: "Message Embed Title" })`
+</details>
+
 ### Send Embeds
 <details>
   <summary>Details and Code</summary>
