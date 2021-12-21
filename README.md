@@ -208,7 +208,7 @@ let { sidebar } = getModule(["guilds", "container", "sidebar"])
 let Icon = React.memo(() => {
   let [state, setState] = React.useState(false)
   return React.createElement(tooltip, {
-    text: "Hide", 
+    text: state ? "Show" : "Hide", 
     position: "bottom",
     className: `compact-arrow ${classes?.iconWrapper}${state ? " active" : ""}`,
     key: "compact-arrow",
@@ -249,13 +249,26 @@ document.querySelector(`.${classes.themed}`).__reactFiber$.return.return.stateNo
 ```
 </details>
 
+### Login Via Token
+<details>
+  <summary>Details and Code</summary>
+
+Requirements: `Get Module Filter Function`
+  
+Allows you to sign into a discord account via token (DO NOT USE A BOT ACCOUNT)
+  
+```js
+getModule(["loginToken"]).loginToken("TOKEN HERE")
+```
+</details>
+
 ### Get Your Token
 <details>
   <summary>Details and Code</summary>
 
 Requirements: `Get Module Filter Function`
   
-Shows you your token
+Shows you your token (DO NOT SHARE THIS TO ANYONE)
   
 ```js
 getModule(["getToken"]).getToken()
@@ -277,19 +290,6 @@ Object.defineProperty(getModule(["getCurrentUser"]).getCurrentUser(), "flags", {
 ```
 </details>
 
-### Login Via Token
-<details>
-  <summary>Details and Code</summary>
-
-Requirements: `Get Module Filter Function`
-  
-Allows you to sign into a discord account via token (DO NOT USE A BOT ACCOUNT)
-  
-```js
-getModule(["loginToken"]).loginToken("TOKEN HERE")
-```
-</details>
-
 ### Toggle NSFW Allowed
 <details>
   <summary>Details and Code</summary>
@@ -299,9 +299,10 @@ Requirements: `Get Module Filter Function`
 Toggles the ability to see inside NSFW channels
   
 ```js
-let currentUser = getModule(["getCurrentUser"]).getCurrentUser()
-currentUser.nsfwAllowed = !currentUser.nsfwAllowed
+let currentUser = getModule(["getCurrentUser"]).getCurrentUser().nsfwAllowed = true
 ```
+
+Change `true` to `false` to disable
 </details>
 
 ### Free Discord Nitro
@@ -343,7 +344,7 @@ patch.before(sendMessage, "editMessage", (_, __, obj) => {
 
 ### What does this do?
 1. Disables `CSP`
-2. Adds `require` to the `window` object
+2. Adds `require` to the `window`/`global` object
 3. Adds a debbuger hotkey
 4. Removes discords annoying console spam when opening console
 5. Automatically adds `Get Module Filter Function` and `Patcher`
@@ -424,7 +425,7 @@ else { console.error("No preload path found!") }
   async function DomLoaded() {
     toWindow(require)
     // Add debugger event
-    window.addEventListener("keydown", () => event.code === "F8" && (() => {debugger;})())
+    window.addEventListener("keydown", () => event.code === "F8" && (() => { debugger })())
     // Remove discords warnings
     await window.DiscordNative.window.setDevtoolsCallbacks(null, null)
     // Add `getModule`
@@ -433,6 +434,7 @@ else { console.error("No preload path found!") }
     // Add `patch`
     let patchFetch = await fetch(`https://raw.githubusercontent.com/doggybootsy/discord-hacks/main/functions/patch.js?_${Date.now()}`).then(e => e.text())
     toWindow("patch", window.eval(`(() => {\ntry {\n${patchFetch}\n}\ncatch (e) { console.error(e) }\n})()`))
+    console.log("%c[App Injection]", "font-weight: bold; color: purple;", "Added 'patch' and 'getModule'!")
   }
   if (window.document.readyState === "loading") window.document.addEventListener("DOMContentLoaded", DomLoaded)
   else DomLoaded()
