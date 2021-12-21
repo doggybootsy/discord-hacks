@@ -10,7 +10,7 @@
   
 Filters through all of discords exported webpack modules
 
-If you have the client injection you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
+If you have the [app injection](https://github.com/doggybootsy/discord-hacks/blob/main/README.md#app-injection) you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
 
 If you have any client mods like Betterdiscord do this (You can also make a simple plugin with this)
 ```js
@@ -63,7 +63,7 @@ Example: `getModule("PanelButton")`, `getModule(["createElement"])`, `getModule(
   
 Patches a module with a function
 
-If you have the client injection you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
+If you have the [app injection](https://github.com/doggybootsy/discord-hacks/blob/main/README.md#app-injection) you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
 
 If you have any client mods like Betterdiscord do this (You can also make a simple plugin with this)
 ```js
