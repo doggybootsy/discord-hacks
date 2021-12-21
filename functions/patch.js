@@ -38,4 +38,6 @@ Object.assign(patch, {
   instead: (module, funcName, callback) => patch(module, funcName, callback, "instead")
 })
 
+console.log("%c[patch]", "font-weight: bold; color: purple;", "Returned 'patch'!")
+
 return patch
