@@ -163,6 +163,66 @@ patch(getModule("MiniPopover"),  "default", ([props]) => {
 ```
 </details>
 
+
+### Collapsible Sidebar
+<details>
+  <summary>Details and Code</summary>
+
+Requirements: `Get Module Filter Function` and `Patcher`
+  
+Adds a button to the toolbar that will collapse the sidebar
+  
+```js
+let module = getModule("HeaderBarContainer").default.prototype
+let React = getModule(["createElement"])
+let classes = {...getModule(["title", "container", "themed"]), ...getModule(["iconWrapper", "clickable"])}
+let tooltip = getModule(["TooltipContainer"]).TooltipContainer
+let { sidebar } = getModule(["guilds", "container", "sidebar"])
+
+let Icon = React.memo(() => {
+  let [state, setState] = React.useState(false)
+  return React.createElement(tooltip, {
+    text: "Hide", 
+    position: "bottom",
+    className: `compact-arrow ${classes?.iconWrapper}${state ? " active" : ""}`,
+    key: "compact-arrow",
+    children: [
+      React.createElement("svg", {
+        width: "24",
+        height: "24",
+        viewBox: "0 0 24 24",
+        fill: "var(--interactive-normal)",
+        onClick: (e) => {
+          setState(!state)
+          document.querySelector(`.${sidebar}`).classList.toggle("compact")
+        },
+        children: [
+          React.createElement("path", {
+            d: "M15.535 3.515L7.05005 12L15.535 20.485L16.95 19.071L9.87805 12L16.95 4.929L15.535 3.515Z"
+          })
+        ]
+      })
+    ]
+  })
+})
+
+document.head.appendChild(Object.assign(document.createElement("style"), {
+  innerHTML: [
+    ".compact-arrow { transition: transform 0.2s ease-in-out }", 
+    ".compact-arrow.active { transform: rotate(180deg) }",
+    `.${sidebar} { transition: width 0.2s ease-in-out }`,
+    `.${sidebar}.compact { width: 0 }`
+  ].join("\n")
+}))
+
+patch(module, "renderLoggedIn", (_, res) => {
+  res.props.children.unshift(React.createElement(Icon))
+})
+
+document.querySelector(`.${classes.themed}`).__reactFiber$.return.return.stateNode.forceUpdate()
+```
+</details>
+
 ### Get Your Token
 <details>
   <summary>Details and Code</summary>
@@ -193,7 +253,7 @@ Object.defineProperty(getModule(["getCurrentUser"]).getCurrentUser(), "flags", {
 
 ### Toggle NSFW Allowed
 <details>
-  <summary>Details and Code</summary>∂
+  <summary>Details and Code</summary>
 
 Requirements: `Get Module Filter Function`
   
@@ -207,7 +267,7 @@ currentUser.nsfwAllowed = !currentUser.nsfwAllowed
 
 ### Toggle NSFW channel
 <details>
-  <summary>Details and Code</summary>∂
+  <summary>Details and Code</summary>
 
 Requirements: `Get Module Filter Function`
 
