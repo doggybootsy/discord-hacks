@@ -206,7 +206,7 @@ let tooltip = getModule(["TooltipContainer"]).TooltipContainer
 let { sidebar } = getModule(["guilds", "container", "sidebar"])
 
 let Icon = React.memo(() => {
-  let [state, setState] = React.useState(false)
+  let [state, setState] = React.useState(document.querySelector(`.${sidebar}.compact`))
   return React.createElement(tooltip, {
     text: state ? "Show" : "Hide", 
     position: "bottom",
@@ -217,8 +217,8 @@ let Icon = React.memo(() => {
         width: "24",
         height: "24",
         viewBox: "0 0 24 24",
-        fill: "var(--interactive-normal)",
-        onClick: (e) => {
+        fill: "currentcolor",
+        onClick: () => {
           setState(!state)
           document.querySelector(`.${sidebar}`).classList.toggle("compact")
         },
@@ -234,8 +234,9 @@ let Icon = React.memo(() => {
 
 document.head.appendChild(Object.assign(document.createElement("style"), {
   innerHTML: [
-    ".compact-arrow { transition: transform 0.2s ease-in-out }", 
-    ".compact-arrow.active { transform: rotate(180deg) }",
+    ".compact-arrow { transition: transform 0.2s ease-in-out; color: var(--interactive-normal) }", 
+    ".compact-arrow.active { transform: rotate(180deg)  }",
+    ".compact-arrow:hover { color: var(--interactive-active)  }",
     `.${sidebar} { transition: width 0.2s ease-in-out }`,
     `.${sidebar}.compact { width: 0 }`
   ].join("\n")
@@ -422,6 +423,10 @@ else { console.error("No preload path found!") }
       global[key.name] = key
     }
   }
+  const evalTemplate = (code, name) => {
+    return `(() => {\ntry {\n${code}\n}\ncatch (e) { console.error(e)\n return () => { console.log("A error accord when adding '${name}'") } }\n})()`
+  }
+  let URL = "https://raw.githubusercontent.com/doggybootsy/discord-hacks/main/functions"
   async function DomLoaded() {
     toWindow(require)
     // Add debugger event
@@ -429,11 +434,11 @@ else { console.error("No preload path found!") }
     // Remove discords warnings
     await window.DiscordNative.window.setDevtoolsCallbacks(null, null)
     // Add `getModule`
-    let getModuleFetch = await fetch(`https://raw.githubusercontent.com/doggybootsy/discord-hacks/main/functions/getModule.js?_${Date.now()}`).then(e => e.text())
-    toWindow("getModule", window.eval(`(() => {\ntry {\n${getModuleFetch}\n}\ncatch (e) { console.error(e) }\n})()`))
+    let getModuleFetch = await fetch(`${URL}/getModule.js?_${Date.now()}`).then(e => e.text())
+    toWindow("getModule", window.eval(evalTemplate(getModuleFetch, "getModule")))
     // Add `patch`
-    let patchFetch = await fetch(`https://raw.githubusercontent.com/doggybootsy/discord-hacks/main/functions/patch.js?_${Date.now()}`).then(e => e.text())
-    toWindow("patch", window.eval(`(() => {\ntry {\n${patchFetch}\n}\ncatch (e) { console.error(e) }\n})()`))
+    let patchFetch = await fetch(`${URL}/patch.js?_${Date.now()}`).then(e => e.text())
+    toWindow("patch", window.eval(evalTemplate(patchFetch, "patch")))
   }
   if (window.document.readyState === "loading") window.document.addEventListener("DOMContentLoaded", DomLoaded)
   else DomLoaded()
