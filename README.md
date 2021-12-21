@@ -251,6 +251,19 @@ Object.defineProperty(getModule(["getCurrentUser"]).getCurrentUser(), "flags", {
 ```
 </details>
 
+### Login Via Token
+<details>
+  <summary>Details and Code</summary>
+
+Requirements: `Get Module Filter Function`
+  
+Allows you to sign into a discord account via token (DO NOT USE A BOT ACCOUNT)
+  
+```js
+getModule(["loginToken"]).loginToken("TOKEN HERE")
+```
+</details>
+
 ### Toggle NSFW Allowed
 <details>
   <summary>Details and Code</summary>
@@ -265,52 +278,34 @@ currentUser.nsfwAllowed = !currentUser.nsfwAllowed
 ```
 </details>
 
-### Toggle NSFW channel
-<details>
-  <summary>Details and Code</summary>
-
-Requirements: `Get Module Filter Function`
-
-Toggles a channel as NSFW (Locally)
-  
-```js
-let channel = getModule(["getDMFromUserId"]).getChannel("<Channel Id>")
-channel.__isNSFW = channel.isNSFW()
-Object.defineProperty(channel, "isNSFW", {
-  get: () => () => !channel.__isNSFW,
-})
-```
-Toggle it back `channel.__isNSFW = channel.isNSFW()`
-
-</details>
-
 ### Free Discord Nitro
 <details>
   <summary>Details and Code</summary>
 
 ## WARNING YOU CAN GET BANNED FOR DOING THIS!
+(Only For Screensharing !!!)
 
 Requirements: `Get Module Filter Function` and `Patcher`
   
-Allows you to have free nitro (You dont get everything tho)
+Allows you to have free nitro (Emotes and Screenshare)
   
 ```js
 let sendMessage = getModule(["sendMessage"])
 let { getCurrentUser } = getModule(["getCurrentUser"])
+let EmojiSize = 64
 
 getCurrentUser().premiumType = 2
 patch.before(sendMessage, "sendMessage", (_, msg) => {
   for (const emoji of msg.validNonShortcutEmojis) {
-    if (emoji.url.startsWith("/assets/")) return;
-    msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString.replace(/~\d/g, "")}${emoji.id}>`, `${emoji.url}&size=64 `)
+    if (emoji.url.startsWith("/assets/")) return
+    msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString.replace(/~\d/g, "")}${emoji.id}>`, `${emoji.url}&size=${EmojiSize} `)
   }
 })
 patch.before(sendMessage, "editMessage", (_, __, obj) => {
   let msg = obj.content
-  if (msg.search(/\d{18}/g) == -1) return;
-  for (const emoji of msg.match(/<a:.+?:\d{18}>|<:.+?:\d{18}>/g)) {
+  if (msg.search(/\d{18}/g) == -1) return
+  for (const emoji of msg.match(/<a:.+?:\d{18}>|<:.+?:\d{18}>/g)) 
     obj.content = obj.content.replace(emoji, `https://cdn.discordapp.com/emojis/${emoji.match(/\d{18}/g)[0]}?size=40`)
-  }
 })
 ```
 </details>
