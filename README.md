@@ -1,7 +1,8 @@
 **Note:** I am not apart of Discord
 
+# Console Hacks
 <details>
-  <summary>Console Hacks</summary>
+  <summary>Hacks</summary>
 
 ### Get Module Filter Function
 <details>
@@ -236,8 +237,9 @@ patch.before(sendMessage, "editMessage", (_, __, obj) => {
 </details>
 </details>
 
+# App injection
 <details>
-  <summary>App injection</summary>
+  <summary>injection</summary>
 
 ### What does this do?
 1. Disables `CSP`
