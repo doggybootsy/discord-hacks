@@ -191,7 +191,7 @@ Object.defineProperty(getModule(["getCurrentUser"]).getCurrentUser(), "flags", {
 ```
 </details>
 
-### Toggle NSFW channels
+### Toggle NSFW Allowed
 <details>
   <summary>Details and Code</summary>∂
 
@@ -203,6 +203,25 @@ Toggles the ability to see inside NSFW channels
 let currentUser = getModule(["getCurrentUser"]).getCurrentUser()
 currentUser.nsfwAllowed = !currentUser.nsfwAllowed
 ```
+</details>
+
+### Toggle NSFW channel
+<details>
+  <summary>Details and Code</summary>∂
+
+Requirements: `Get Module Filter Function`
+
+Toggles a channel as NSFW (Locally)
+  
+```js
+let channel = getModule(["getDMFromUserId"]).getChannel("<Channel Id>")
+channel.__isNSFW = channel.isNSFW()
+Object.defineProperty(channel, "isNSFW", {
+  get: () => () => !channel.__isNSFW,
+})
+```
+Toggle it back `channel.__isNSFW = channel.isNSFW()`
+
 </details>
 
 ### Free Discord Nitro
@@ -311,8 +330,6 @@ if (path) { require(path) }
 else { console.error("No preload path found!") }
 
 ((window) => {
-  console.log("TEST")
-
   const toWindow = (key, value) => {
     if (key.name === undefined){
       window[key] = value
