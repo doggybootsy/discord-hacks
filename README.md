@@ -6,9 +6,10 @@
 ### Get Module Filter Function
 <details>
   <summary>Details and Code</summary>
-<br/>
   
 Filters through all of discords exported webpack modules
+
+If you have the client injection you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
 
 ```js
 let webpackExports = webpackChunkdiscord_app.push([[Math.random()],{},(e) => e])
@@ -52,9 +53,10 @@ Example: `getModule("PanelButton")`, `getModule(["createElement"])`, `getModule(
 ### Patcher
 <details>
   <summary>Details and Code</summary>
-<br/>
   
 Patches a module with a function
+
+If you have the client injection you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
 
 ```js
 function patch(module, funcName, callback, type = "after") {
@@ -102,7 +104,6 @@ Object.assign(patch, {
 ### Send Embeds
 <details>
   <summary>Details and Code</summary>
-<br/>
 
 ## WARNING YOU CAN GET BANNED FOR DOING THIS!
   
@@ -132,7 +133,6 @@ Example: `sendEmbed("Message Content")` and `sendEmbed("Message Content", { titl
 ### Enable Developer Mode
 <details>
   <summary>Details and Code</summary>
-<br/>
 
 Requirements: `Get Module Filter Function`
   
@@ -149,7 +149,6 @@ Object.defineProperty(getModule(["isDeveloper"]), "isDeveloper", {
 ### Enable Discords Message Reporting System
 <details>
   <summary>Details and Code</summary>
-<br/>
 
 Requirements: `Get Module Filter Function` and `Patcher`
   
@@ -159,6 +158,79 @@ Allows you to report messages to the discord message reporting system
 patch(getModule("MiniPopover"),  "default", ([props]) => {
   const child = props.children.filter(e => e?.props)
   if (child.length) child[0].props.canReport = true
+})
+```
+</details>
+
+### Get Your Token
+<details>
+  <summary>Details and Code</summary>
+
+Requirements: `Get Module Filter Function`
+  
+Shows you your token
+  
+```js
+getModule(["getToken"]).getToken()
+```
+</details>
+
+### Get all badges
+<details>
+  <summary>Details and Code</summary>
+
+Requirements: `Get Module Filter Function`
+  
+Gives you all badges (Locally)
+  
+```js
+Object.defineProperty(getModule(["getCurrentUser"]).getCurrentUser(), "flags", {
+  get: () => 219087
+})
+```
+</details>
+
+### Toggle NSFW channels
+<details>
+  <summary>Details and Code</summary>∂
+
+Requirements: `Get Module Filter Function`
+  
+Toggles the ability to see inside NSFW channels
+  
+```js
+let currentUser = getModule(["getCurrentUser"]).getCurrentUser()
+currentUser.nsfwAllowed = !currentUser.nsfwAllowed
+```
+</details>
+
+### Free Discord Nitro
+<details>
+  <summary>Details and Code</summary>
+
+## WARNING YOU CAN GET BANNED FOR DOING THIS!
+
+Requirements: `Get Module Filter Function` and `Patcher`
+  
+Allows you to have free nitro (You dont get everything tho)
+  
+```js
+let sendMessage = getModule(["sendMessage"])
+let { getCurrentUser } = getModule(["getCurrentUser"])
+
+getCurrentUser().premiumType = 2
+patch.before(sendMessage, "sendMessage", (_, msg) => {
+  for (const emoji of msg.validNonShortcutEmojis) {
+    if (emoji.url.startsWith("/assets/")) return;
+    msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString.replace(/~\d/g, "")}${emoji.id}>`, `${emoji.url}&size=64 `)
+  }
+})
+patch.before(sendMessage, "editMessage", (_, __, obj) => {
+  let msg = obj.content
+  if (msg.search(/\d{18}/g) == -1) return;
+  for (const emoji of msg.match(/<a:.+?:\d{18}>|<:.+?:\d{18}>/g)) {
+    obj.content = obj.content.replace(emoji, `https://cdn.discordapp.com/emojis/${emoji.match(/\d{18}/g)[0]}?size=40`)
+  }
 })
 ```
 </details>
@@ -172,15 +244,13 @@ patch(getModule("MiniPopover"),  "default", ([props]) => {
 2. Adds `require` to the `window` object
 3. Adds a debbuger hotkey
 4. Removes discords annoying console spam when opening console
+5. Automatically adds `Get Module Filter Function` and `Patcher`
 ### What can I do with this?
 1. Make themes/plugins/etc
 2. Make console injections permanent (Until you remove it)
 ### Steps
-
 1. Go to your discords resources folder and make a folder called `app`
-
 2. Make a `index.js` file in the `app` folder and paste the code below into it
-
 ```js
 const { join } = require("path")
 const electron = require("electron")
@@ -238,25 +308,32 @@ const path = process.env.DISCORD_PRELOAD
 if (path) { require(path) }
 else { console.error("No preload path found!") }
 
-((topWindow) => {
+((window) => {
   const toWindow = (key, value) => {
     if (key.name === undefined){
-      topWindow[key] = value
+      window[key] = value
       global[key] = value
     }
     else {
-      topWindow[key.name] = key
+      window[key.name] = key
       global[key.name] = key
     }
   }
-  topWindow.document.addEventListener("DOMContentLoaded", async () => {
+  window.document.addEventListener("DOMContentLoaded", async () => {
     toWindow(require)
     // Add debugger event
-    topWindow.addEventListener("keydown", () => event.code === "F8" && (() => {debugger;})())
+    window.addEventListener("keydown", () => event.code === "F8" && (() => {debugger;})())
     // Remove discords warnings
     DiscordNative.window.setDevtoolsCallbacks(null, null)
+    // Add `getModule`
+    let getModuleFetch = await fetch(`https://raw.githubusercontent.com/doggybootsy/discord-hacks/main/functions/getModule.js.js?_${Date.now()}`).then(e => e.text())
+    toWindow("getModule", window.eval(`(() => {\n${getModuleFetch}\n})()`))
+    // Add `patch`
+    let patchFetch = await fetch(`https://raw.githubusercontent.com/doggybootsy/discord-hacks/main/functions/patch.js?_${Date.now()}`).then(e => e.text())
+    toWindow("patch", window.eval(`(() => {\n${patchFetch}\n})()`))
   })
 })(webFrame.top.context)
 ```
 4. Make a `package.json` file in the `app` folder and paste `{"name": "discord", "main": "./index.js"}` into it
+5. Fully restart discord
 </details>
