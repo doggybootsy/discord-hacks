@@ -1,7 +1,15 @@
+**Note:** I am not apart of Discord
+
 <details>
-  <summary>Get Module Filter Function</summary>
+  <summary>Console Hacks</summary>
+
+### Get Module Filter Function
+<details>
+  <summary>Details and Code</summary>
 <br/>
   
+Filters through all of discords exported webpack modules
+
 ```js
 let webpackExports = webpackChunkdiscord_app.push([[Math.random()],{},(e) => e])
 
@@ -40,10 +48,14 @@ function getModule(filter, first = true) {
 ```
 Example: `getModule("PanelButton")`, `getModule(["createElement"])`, `getModule(["Messages"], false)[1]`, and `DrApi.find(e => e.default?.definition?.label === "Desktop Multi Account")`
 </details>
+
+### Patcher
 <details>
-  <summary>Patcher</summary>
+  <summary>Details and Code</summary>
 <br/>
   
+Patches a module with a function
+
 ```js
 function patch(module, funcName, callback, type = "after") {
   const original = module[funcName]
@@ -86,12 +98,16 @@ Object.assign(patch, {
 })
 ```
 </details>
+
+### Send Embeds
 <details>
-  <summary>Send Embeds</summary>
+  <summary>Details and Code</summary>
 <br/>
 
 ## WARNING YOU CAN GET BANNED FOR DOING THIS!
   
+Send a embed (with a message) in the current channel
+
 Requirements: `Get Module Filter Function`
   
 ```js
@@ -112,12 +128,16 @@ function sendEmbed(content, embed = {}) {
 ```
 Example: `sendEmbed("Message Content")` and `sendEmbed("Message Content", { title: "Message Embed Title" })`
 </details>
+
+### Enable Developer Mode
 <details>
-  <summary>Enable Developer Mode</summary>
+  <summary>Details and Code</summary>
 <br/>
 
 Requirements: `Get Module Filter Function`
   
+Enabled discords developer mode (Look at settings)
+
 ```js
 Object.defineProperty(getModule(["isDeveloper"]), "isDeveloper", {
   get: () => true,
@@ -125,11 +145,15 @@ Object.defineProperty(getModule(["isDeveloper"]), "isDeveloper", {
 })
 ```
 </details>
+
+### Enable Discords Message Reporting System
 <details>
-  <summary>Enable Discords Message Reporting System</summary>
+  <summary>Details and Code</summary>
 <br/>
 
 Requirements: `Get Module Filter Function` and `Patcher`
+  
+Allows you to report messages to the discord message reporting system
   
 ```js
 patch(getModule("MiniPopover"),  "default", ([props]) => {
@@ -137,4 +161,102 @@ patch(getModule("MiniPopover"),  "default", ([props]) => {
   if (child.length) child[0].props.canReport = true
 })
 ```
+</details>
+</details>
+
+<details>
+  <summary>App injection</summary>
+
+### What does this do?
+1. Disables `CSP`
+2. Adds `require` to the `window` object
+3. Adds a debbuger hotkey
+4. Removes discords annoying console spam when opening console
+### What can I do with this?
+1. Make themes/plugins/etc
+2. Make console injections permanent (Until you remove it)
+### Steps
+
+1. Go to your discords resources folder and make a folder called `app`
+
+2. Make a `index.js` file in the `app` folder and paste the code below into it
+
+```js
+const { join } = require("path")
+const electron = require("electron")
+const Module = require("module")
+
+electron.app.commandLine.appendSwitch("no-force-async-hooks-checks")
+
+class BrowserWindow extends electron.BrowserWindow {
+  constructor(opt) {
+    if (!opt || !opt.webPreferences || !opt.webPreferences.preload || !opt.title) return super(opt)
+    const originalPreload = opt.webPreferences.preload
+    process.env.DISCORD_PRELOAD = originalPreload
+    
+    opt = Object.assign(opt, {
+      webPreferences: {
+        contextIsolation: false,
+        enableRemoteModule: true,
+        nodeIntegration: true,
+        preload: join(__dirname, "preload.js")
+      }
+    })
+    super(opt)
+  }
+}
+
+electron.app.once("ready", () => {
+  electron.session.defaultSession.webRequest.onHeadersReceived(function({ responseHeaders }, callback) {
+    delete responseHeaders["content-security-policy-report-only"]
+    delete responseHeaders["content-security-policy"]
+    callback({ 
+      cancel: false, 
+      responseHeaders
+    })
+  })
+})
+
+const Electron = new Proxy(electron, { get: (target, prop) => prop === "BrowserWindow" ? BrowserWindow : target[prop] })
+
+const electronPath = require.resolve("electron")
+delete require.cache[electronPath].exports
+require.cache[electronPath].exports = Electron
+
+const basePath = join(process.resourcesPath, "app.asar")
+const pkg = require(join(basePath, "package.json"))
+electron.app.setAppPath(basePath)
+electron.app.name = pkg.name
+Module._load(join(basePath, pkg.main), null, true)
+```
+3. Make a `preload.js` file in the `app` folder and paste the code below into it
+```js
+const { webFrame } = require("electron")
+
+// Load discords preload
+const path = process.env.DISCORD_PRELOAD
+if (path) { require(path) }
+else { console.error("No preload path found!") }
+
+((topWindow) => {
+  const toWindow = (key, value) => {
+    if (key.name === undefined){
+      topWindow[key] = value
+      global[key] = value
+    }
+    else {
+      topWindow[key.name] = key
+      global[key.name] = key
+    }
+  }
+  topWindow.document.addEventListener("DOMContentLoaded", async () => {
+    toWindow(require)
+    // Add debugger event
+    topWindow.addEventListener("keydown", () => event.code === "F8" && (() => {debugger;})())
+    // Remove discords warnings
+    DiscordNative.window.setDevtoolsCallbacks(null, null)
+  })
+})(webFrame.top.context)
+```
+4. Make a `package.json` file in the `app` folder and paste `{"name": "discord", "main": "./index.js"}` into it
 </details>
