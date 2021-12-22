@@ -1,4 +1,6 @@
-let webpackExports = window.webpackChunkdiscord_app.push([[Math.random()],{},(e) => e])
+const { webFrame } = require("electron")
+
+let webpackExports = webFrame.top.context.webpackChunkdiscord_app.push([[Math.random()],{},(e) => e])
 
 function getModule(filter, first = true) {
   let modules = []
