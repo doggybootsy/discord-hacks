@@ -297,6 +297,35 @@ Object.defineProperty(getModule(["getCurrentUser"]).getCurrentUser(), "flags", {
 ```
 </details>
 
+### Get All Private Channel IDs
+<details>
+  <summary>Details and Code</summary>
+
+Requirements: `Get Module Filter Function`
+  
+Shows you all private channel ids
+  
+```js
+getModule(["getPrivateChannelIds"]).getPrivateChannelIds()
+```
+</details>
+
+### Phone, Email verification bypass
+<details>
+  <summary>Details and Code</summary>
+
+Requirements: `Get Module Filter Function`
+  
+Bypass Phone and email verification in server, this cannot let you send message but you still can connect and and talk in voice channels [credits](https://github.com/hxr404/Discord-Console-hacks#phone-email-verification-bypass)
+  
+```js
+let user = getModule(["getCurrentUser"]).getCurrentUser()
+user.phone = "+1234567890"
+user.email = "email@email.com"
+user.verified = true
+```
+</details>
+
 ### Toggle NSFW Allowed
 <details>
   <summary>Details and Code</summary>
