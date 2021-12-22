@@ -7,20 +7,20 @@
   <summary>Hacks</summary>
   
   ### Table of Contents  
-  [get-module-filter-function](#get-module-filter-function)  
+  [get module filter function](#get-module-filter-function)  
   [Patcher](#Patcher)  
-  [send-local-embeds](#send-local-embeds)  
-  [send-embeds](#send-embeds)  
-  [enable-developer-mode](#enable-developer-mode)  
-  [enable-discords-message-reporting-system](#enable-discords-message-reporting-system)  
-  [collapsible-sidebar](#collapsible-sidebar)  
-  [login-via-token](#login-via-token)  
-  [get-your-token](#get-your-token)  
-  [get-all-badges](#get-all-badges)  
-  [get-all-private-channel-ids](#get-all-private-channel-ids)  
-  [phone-email-verification-bypass](#phone-email-verification-bypass)  
-  [toggle-nsfw-allowed](#toggle-nsfw-allowed)  
-  [free-discord-nitro](#free-discord-nitro)  
+  [send local embeds](#send-local-embeds)  
+  [send embeds](#send-embeds)  
+  [enable developer mode](#enable-developer-mode)  
+  [enable discords message reporting system](#enable-discords-message-reporting-system)  
+  [collapsible sidebar](#collapsible-sidebar)  
+  [login via token](#login-via-token)  
+  [get your token](#get-your-token)  
+  [get all badges](#get-all-badges)  
+  [get all private channel ids](#get-all-private-channel-ids)  
+  [phone email verification bypass](#phone-email-verification-bypass)  
+  [toggle nsfw allowed](#toggle-nsfw-allowed)  
+  [free discord nitro](#free-discord-nitro)  
   
 ### Get Module Filter Function
 <details>
