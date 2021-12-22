@@ -201,7 +201,12 @@ Adds a button to the toolbar that will collapse the sidebar
 ```js
 let module = getModule("HeaderBarContainer").default.prototype
 let React = getModule(["createElement"])
-let classes = {...getModule(["title", "container", "themed"]), ...getModule(["iconWrapper", "clickable"])}
+let classes = {
+  ...getModule(["panels"]),
+  ...getModule(["title", "container", "themed"]), 
+  ...getModule(["iconWrapper", "clickable"]), 
+  ...getModule(["container", "subscribeTooltipHeader"])
+}
 let tooltip = getModule(["TooltipContainer"]).TooltipContainer
 let { sidebar } = getModule(["guilds", "container", "sidebar"])
 
@@ -238,7 +243,8 @@ document.head.appendChild(Object.assign(document.createElement("style"), {
     ".compact-arrow.active { transform: rotate(180deg)  }",
     ".compact-arrow:hover { color: var(--interactive-active)  }",
     `.${sidebar} { transition: width 0.2s ease-in-out }`,
-    `.${sidebar}.compact { width: 0 }`
+    `.${sidebar}.compact { width: 0 }`,
+    `.${classes.container}, .${classes.panels} { width: 240px }`,
   ].join("\n")
 }))
 
@@ -406,6 +412,7 @@ Module._load(join(basePath, pkg.main), null, true)
 3. Make a `preload.js` file in the `app` folder and paste the code below into it
 ```js
 const { webFrame } = require("electron")
+const Mod = require("module")
 
 // Load discords preload
 const path = process.env.DISCORD_PRELOAD
@@ -423,10 +430,7 @@ else { console.error("No preload path found!") }
       global[key.name] = key
     }
   }
-  const evalTemplate = (code, name) => {
-    return `(() => {\ntry {\n${code}\n}\ncatch (e) { console.error(e)\n return () => { console.log("A error accord when adding '${name}'") } }\n})()`
-  }
-  let URL = "https://raw.githubusercontent.com/doggybootsy/discord-hacks/main/functions"
+  let URL = "http://127.0.0.1:5500/functions"
   async function DomLoaded() {
     toWindow(require)
     // Add debugger event
@@ -435,10 +439,10 @@ else { console.error("No preload path found!") }
     await window.DiscordNative.window.setDevtoolsCallbacks(null, null)
     // Add `getModule`
     let getModuleFetch = await fetch(`${URL}/getModule.js?_${Date.now()}`).then(e => e.text())
-    toWindow("getModule", window.eval(evalTemplate(getModuleFetch, "getModule")))
+    toWindow("getModule", Mod.prototype._compile(getModuleFetch, "getModule"))
     // Add `patch`
     let patchFetch = await fetch(`${URL}/patch.js?_${Date.now()}`).then(e => e.text())
-    toWindow("patch", window.eval(evalTemplate(patchFetch, "patch")))
+    toWindow("patch", Mod.prototype._compile(patchFetch, "patch"))
   }
   if (window.document.readyState === "loading") window.document.addEventListener("DOMContentLoaded", DomLoaded)
   else DomLoaded()
