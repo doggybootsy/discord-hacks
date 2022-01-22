@@ -283,7 +283,7 @@ Requirements: `Get Module Filter Function`
 Allows you to sign into a discord account via token (DO NOT USE A BOT ACCOUNT)
   
 ```js
-getModule(["loginToken"]).loginToken("TOKEN HERE")
+getModule(["setToken"]).setToken("Token_HERE")
 ```
 </details>
 
