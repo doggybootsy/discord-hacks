@@ -10,7 +10,7 @@
   [get module filter function](#get-module-filter-function)  
   [Patcher](#Patcher)  
   [send local embeds](#send-local-embeds)  
-  [silent typing](#silent-typing)
+  [silent typing](#silent-typing)  
   [enable developer mode](#enable-developer-mode)  
   [enable discords message reporting system](#enable-discords-message-reporting-system)  
   [collapsible sidebar](#collapsible-sidebar)  
