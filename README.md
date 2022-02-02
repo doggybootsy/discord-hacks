@@ -10,7 +10,7 @@
   [get module filter function](#get-module-filter-function)  
   [Patcher](#Patcher)  
   [send local embeds](#send-local-embeds)  
-  [send embeds](#send-embeds)  
+  [silent typing](#silent-typing)  
   [enable developer mode](#enable-developer-mode)  
   [enable discords message reporting system](#enable-discords-message-reporting-system)  
   [collapsible sidebar](#collapsible-sidebar)  
@@ -145,34 +145,18 @@ function sendFakeEmbed(message, embed) {
 ```
 Example: `sendFakeEmbed("Message Content")` and `sendFakeEmbed("Message Content", { title: "Message Embed Title" })`
 </details>
-
-### Send Embeds
+  
+### Silent Typing
 <details>
   <summary>Details and Code</summary>
-
-## WARNING YOU CAN GET BANNED FOR DOING THIS!
   
-Send a embed (with a message) in the current channel
+Make everyone can't see you're typing
 
-Requirements: `Get Module Filter Function`
+Requirements: `Get Module Filter Function and Patcher Function`
   
 ```js
-let queue = getModule(["enqueue"])
-let { getChannelId } = getModule(["getChannelId", "getVoiceChannelId"])
-let { createBotMessage } = getModule(["createBotMessage"])
-
-function sendEmbed(content, embed = {}) {
-  let channelId = getChannelId()
-  const { id:nonce } = createBotMessage(channelId, "")
-  queue.enqueue({
-    type:0, nonce, 
-    message: {
-      channelId, content, embed
-    }
-  }, (_ => _))
-}
+Patcher.instead(getModule(["startTyping"]), "startTyping", ([, t]) => () => {})
 ```
-Example: `sendEmbed("Message Content")` and `sendEmbed("Message Content", { title: "Message Embed Title" })`
 </details>
 
 ### Enable Developer Mode
