@@ -31,7 +31,11 @@ Filters through all of discords exported webpack modules
 If you have the [app injection](https://github.com/doggybootsy/discord-hacks/blob/main/README.md#app-injection) you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
 
 ```js
-let webpackExports = webpackChunkdiscord_app.push([[Math.random()],{},(e) => e])
+let webpackExports = ~webpackChunkdiscord_app.webpackExports ? webpackChunkdiscord_app.push([[Math.random()],{},(e) => {
+  webpackChunkdiscord_app.pop()
+  return e
+}]) : webpackChunkdiscord_app.webpackExports
+webpackChunkdiscord_app.webpackExports = webpackExports
 
 function getModule(filter, first = true) {
   let modules = []
@@ -96,10 +100,9 @@ function patch(module, funcName, callback, type = "after") {
     return callback.apply(this, [[...arguments], original])
   }
   else throw new Error(`Unknown patch type: ${type}`)
-
-  if (Object.keys(original).length) 
-    for (const key of Object.keys(original)) 
-      module[funcName][key] = original[key]
+  
+  Object.assign(module[funcName], original)
+  module[funcName].toString = () => original.toString
 
   const position = module[funcName].__patches.push([module, funcName, callback, type]) - 1
   // Unpatch all patches on 'module[funcName]', then re-patch them unless they are the one getting unpatched
@@ -155,7 +158,7 @@ Make everyone can't see you're typing
 Requirements: `Get Module Filter Function and Patcher Function`
   
 ```js
-Patcher.instead(getModule(["startTyping"]), "startTyping", ([, t]) => () => {})
+Patcher.instead(getModule(["startTyping"]), "startTyping", () => () => {})
 ```
 </details>
 
@@ -337,7 +340,7 @@ Requirements: `Get Module Filter Function`
 Toggles the ability to see inside NSFW channels
   
 ```js
-let currentUser = getModule(["getCurrentUser"]).getCurrentUser().nsfwAllowed = true
+getModule(["getCurrentUser"]).getCurrentUser().nsfwAllowed = true
 ```
 
 Change `true` to `false` to disable
@@ -379,106 +382,5 @@ patch.before(sendMessage, "editMessage", (_, __, obj) => {
 # App injection
 <details>
   <summary>injection</summary>
-
-### What does this do?
-1. Disables `CSP`
-2. Adds `require` to the `window`/`global` object
-3. Adds a debbuger hotkey
-4. Removes discords annoying console spam when opening console
-5. Automatically adds `Get Module Filter Function` and `Patcher`
-### What can I do with this?
-1. Make themes/plugins/etc
-2. Make console injections permanent (Until you remove it)
-### Steps
-1. Go to your discords resources folder and make a folder called `app`
-2. Make a `index.js` file in the `app` folder and paste the code below into it
-```js
-const { join } = require("path")
-const electron = require("electron")
-const Module = require("module")
-
-electron.app.commandLine.appendSwitch("no-force-async-hooks-checks")
-
-class BrowserWindow extends electron.BrowserWindow {
-  constructor(opt) {
-    if (!opt || !opt.webPreferences || !opt.webPreferences.preload || !opt.title) return super(opt)
-    const originalPreload = opt.webPreferences.preload
-    process.env.DISCORD_PRELOAD = originalPreload
-    
-    opt = Object.assign(opt, {
-      webPreferences: {
-        contextIsolation: false,
-        enableRemoteModule: true,
-        nodeIntegration: true,
-        preload: join(__dirname, "preload.js")
-      }
-    })
-    super(opt)
-  }
-}
-
-electron.app.once("ready", () => {
-  electron.session.defaultSession.webRequest.onHeadersReceived(function({ responseHeaders }, callback) {
-    delete responseHeaders["content-security-policy-report-only"]
-    delete responseHeaders["content-security-policy"]
-    callback({ 
-      cancel: false, 
-      responseHeaders
-    })
-  })
-})
-
-const Electron = new Proxy(electron, { get: (target, prop) => prop === "BrowserWindow" ? BrowserWindow : target[prop] })
-
-const electronPath = require.resolve("electron")
-delete require.cache[electronPath].exports
-require.cache[electronPath].exports = Electron
-
-const basePath = join(process.resourcesPath, "app.asar")
-const pkg = require(join(basePath, "package.json"))
-electron.app.setAppPath(basePath)
-electron.app.name = pkg.name
-Module._load(join(basePath, pkg.main), null, true)
-```
-3. Make a `preload.js` file in the `app` folder and paste the code below into it
-```js
-const { webFrame } = require("electron")
-const Mod = require("module")
-
-// Load discords preload
-const path = process.env.DISCORD_PRELOAD
-if (path) { require(path) }
-else { console.error("No preload path found!") }
-
-((window) => {
-  const toWindow = (key, value) => {
-    if (key.name === undefined){
-      window[key] = value
-      global[key] = value
-    }
-    else {
-      window[key.name] = key
-      global[key.name] = key
-    }
-  }
-  let URL = "http://127.0.0.1:5500/functions"
-  async function DomLoaded() {
-    toWindow(require)
-    // Add debugger event
-    window.addEventListener("keydown", () => event.code === "F8" && (() => {debugger;})())
-    // Remove discords warnings
-    await window.DiscordNative.window.setDevtoolsCallbacks(null, null)
-    // Add `getModule`
-    let getModuleFetch = await fetch(`${URL}/getModule.js?_${Date.now()}`).then(e => e.text())
-    toWindow("getModule", Mod.prototype._compile(getModuleFetch, "getModule"))
-    // Add `patch`
-    let patchFetch = await fetch(`${URL}/patch.js?_${Date.now()}`).then(e => e.text())
-    toWindow("patch", Mod.prototype._compile(patchFetch, "patch"))
-  }
-  if (window.document.readyState === "loading") window.document.addEventListener("DOMContentLoaded", DomLoaded)
-  else DomLoaded()
-})(webFrame.top.context)
-```
-4. Make a `package.json` file in the `app` folder and paste `{"name": "discord", "main": "./index.js"}` into it
-5. Fully restart discord
+Removing for now
 </details>
