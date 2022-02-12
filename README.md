@@ -31,11 +31,11 @@ Filters through all of discords exported webpack modules
 If you have the [app injection](https://github.com/doggybootsy/discord-hacks/blob/main/README.md#app-injection) you dont need to add this, if you dont you only need to paste this code in console once per load (If you reload you need to add it again)
 
 ```js
-let webpackExports = ~webpackChunkdiscord_app.webpackExports ? webpackChunkdiscord_app.push([[Math.random()],{},(e) => {
+let webpackExports = !webpackChunkdiscord_app.webpackExports ? webpackChunkdiscord_app.push([[Math.random()],{},(exports) => {
   webpackChunkdiscord_app.pop()
-  return e
+  webpackChunkdiscord_app.webpackExports = exports
+  return exports
 }]) : webpackChunkdiscord_app.webpackExports
-webpackChunkdiscord_app.webpackExports = webpackExports
 
 function getModule(filter, first = true) {
   let modules = []
@@ -69,6 +69,7 @@ function getModule(filter, first = true) {
   if (first) return modules[0]
   return modules
 }
+
 ```
 Example: `getModule("PanelButton")`, `getModule(["createElement"])`, `getModule(["Messages"], false)[1]`, and `DrApi.find(e => e.default?.definition?.label === "Desktop Multi Account")`
 </details>
